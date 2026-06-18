@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Familia Sotil — Lima, December 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:     #C9954A;
+    --rust:     #8B3A2A;
+    --cream:    #FAF6EF;
+    --dark:     #1A1410;
+    --mid:      #4A3728;
+    --light:    #E8DDD0;
+    --activity: #2D6A4F;
+    --dinner:   #8B3A2A;
+    --commute:  #3A5F7A;
+    --shopping: #7B5E8A;
+    --free:     #6B6B5A;
+    --text:     #2C1F14;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+  /* HERO */
+  .hero {
+    background: #0a1f44; color: var(--cream);
+    padding: 10px 24px 8px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,149,74,0.18) 0%, transparent 70%);
+  }
+  .hero-eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; font-weight: 500; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(22px, 4vw, 38px); font-weight: 400; line-height: 1.1; margin-bottom: 2px; }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub { font-size: 12px; color: rgba(250,246,239,0.55); letter-spacing: 0.06em; margin-bottom: 0; }
+  .hero-stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--gold); display: block; }
+  .stat-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(250,246,239,0.45); }
+
+  /* TABS */
+  .tabs-outer {
+    background: #0a1f44; border-top: 1px solid rgba(201,149,74,0.2);
+    display: flex; align-items: center;
+  }
+  .scroll-btn {
+    background: none; border: none; color: rgba(250,246,239,0.6);
+    font-size: 20px; padding: 0 10px; cursor: pointer;
+    flex-shrink: 0; transition: color 0.2s; user-select: none;
+    height: 100%; display: flex; align-items: center;
+  }
+  .scroll-btn:hover { color: var(--gold); }
+  .scroll-btn.hidden { visibility: hidden; }
+  #tabs-wrapper {
+    display: flex; flex-wrap: nowrap;
+    overflow-x: auto; scrollbar-width: none; flex: 1;
+  }
+  #tabs-wrapper::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 7px 12px; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: rgba(250,246,239,0.4); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s; white-space: nowrap; user-select: none;
+    flex-shrink: 0;
+  }
+  .tab:hover { color: rgba(250,246,239,0.75); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* CONTENT */
+  .content { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* OVERVIEW */
+  .overview-intro { margin-bottom: 28px; }
+  .overview-intro h2 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 400; margin-bottom: 6px; }
+  .overview-intro p { font-size: 13px; color: var(--mid); line-height: 1.7; max-width: 640px; }
+
+  /* Arrival rows */
+  .arrival-rows { border-top: 1px solid var(--light); margin-bottom: 36px; }
+  .arrival-row { display: flex; align-items: baseline; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--light); flex-wrap: wrap; }
+  .ar-date { font-size: 13px; font-weight: 600; color: var(--dark); min-width: 100px; flex-shrink: 0; }
+  .ar-type { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; padding: 2px 7px; border-radius: 3px; flex-shrink: 0; }
+  .ar-arrives { background: rgba(45,106,79,0.12); color: var(--activity); }
+  .ar-departs { background: rgba(139,58,42,0.12); color: var(--dinner); }
+  .ar-who { font-size: 13px; color: var(--dark); }
+
+  /* Day blocks */
+  .day-block { margin-bottom: 28px; }
+  .day-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; padding-bottom: 7px; border-bottom: 1px solid var(--light); }
+  .day-header .day-date { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--dark); }
+  .day-header .day-dow { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); }
+
+  /* Event rows */
+  .event-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(232,221,208,0.5); }
+  .event-row:last-child { border-bottom: none; }
+  .event-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .dot-tour     { background: var(--activity); }
+  .dot-dinner   { background: var(--dinner); }
+  .dot-commute  { background: var(--commute); }
+  .dot-shopping { background: var(--shopping); }
+  .dot-free     { background: var(--free); }
+
+  .event-body { flex: 1; min-width: 0; }
+  .event-meta { font-size: 11px; color: rgba(74,55,40,0.5); flex-shrink: 0; text-align: right; min-width: 56px; }
+
+  .type-tag { display: inline-block; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; font-weight: 600; margin-bottom: 3px; }
+  .tag-Tour     { background: rgba(45,106,79,0.12);  color: var(--activity); }
+  .tag-Dinner   { background: rgba(139,58,42,0.12);  color: var(--dinner); }
+  .tag-Commute  { background: rgba(58,95,122,0.12);  color: var(--commute); }
+  .tag-Shopping { background: rgba(123,94,138,0.12); color: var(--shopping); }
+  .tag-Free     { background: rgba(107,107,90,0.12); color: var(--free); }
+
+  .event-title { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 2px; }
+  .event-time  { font-size: 12px; font-weight: 400; color: var(--mid); }
+  .event-desc  { font-size: 12px; color: var(--mid); line-height: 1.5; margin-top: 2px; }
+  .event-code  { font-size: 10px; color: rgba(74,55,40,0.4); font-family: monospace; margin-top: 1px; }
+
+  .attendee-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .chip { font-size: 10px; padding: 2px 7px; background: var(--light); border-radius: 10px; color: var(--mid); font-weight: 500; }
+  .chip-local { background: rgba(201,149,74,0.15); color: #7A5A20; }
+
+  /* Traveler hero */
+  .traveler-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; padding: 18px 22px; background: white; border: 1px solid var(--light); border-radius: 12px; }
+  .traveler-avatar { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 20px; color: white; flex-shrink: 0; }
+  .traveler-info h2 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400; margin-bottom: 2px; }
+  .traveler-info .traveler-dates { font-size: 12px; color: var(--mid); }
+  .traveler-info .traveler-count { font-size: 12px; color: var(--gold); font-weight: 600; margin-top: 2px; }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 20px; font-size: 12px; color: var(--mid); flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .no-events { padding: 36px; text-align: center; color: var(--mid); font-style: italic; font-size: 14px; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 32px 18px 28px; }
+    .content { padding: 20px 14px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div style="position:sticky; top:0; z-index:100;">
+
+<div class="hero">
+  <div style="display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap;">
+    <div>
+      <h1>Family Trip to <em>Lima</em></h1>
+      <div class="hero-sub">December 2026</div>
+    </div>
+    </div>
+</div>
+
+<div class="tabs-outer">
+  <button class="scroll-btn hidden" id="scroll-left" onclick="scrollTabs(-1)">&#8249;</button>
+  <div id="tabs-wrapper">
+    <div class="tab active" onclick="showPanel('overview',this)">All Activities</div>
+    <div class="tab" onclick="showPanel('alvaro',this)">Alvaro</div>
+    <div class="tab" onclick="showPanel('deyna',this)">Deyna</div>
+    <div class="tab" onclick="showPanel('david',this)">David</div>
+    <div class="tab" onclick="showPanel('gabriel',this)">Gabriel</div>
+    <div class="tab" onclick="showPanel('ellen',this)">Ellen</div>
+    <div class="tab" onclick="showPanel('gabrielito',this)">Gabrielito</div>
+    <div class="tab" onclick="showPanel('lucas',this)">Lucas</div>
+    <div class="tab" onclick="showPanel('daniel',this)">Daniel</div>
+    <div class="tab" onclick="showPanel('claire',this)">Claire</div>
+    <div class="tab" onclick="showPanel('tom',this)">Tom</div>
+    <div class="tab" onclick="showPanel('renee',this)">Renee</div>
+    <div class="tab" onclick="showPanel('lucho',this)">Lucho</div>
+    <div class="tab" onclick="showPanel('mari',this)">Mari</div>
+    <div class="tab" onclick="showPanel('blanca',this)">Blanca</div>
+    <div class="tab" onclick="showPanel('anamaria',this)">Ana María</div>
+    <div class="tab" onclick="showPanel('rosi',this)">Rosi</div>
+    <div class="tab" onclick="showPanel('gustavo',this)">Gustavo</div>
+    <div class="tab" onclick="showPanel('duili',this)">Duili</div>
+    <div class="tab" onclick="showPanel('guti',this)">Guti</div>
+  </div>
+  <button class="scroll-btn" id="scroll-right" onclick="scrollTabs(1)">&#8250;</button>
+</div>
+
+</div>
+
+<div class="content">
+
+<!-- OVERVIEW -->
+<div class="panel active" id="panel-overview">
+  <div class="overview-intro">
+    <h2>Arrivals &amp; Departures</h2>
+  </div>
+  <div class="arrival-rows">
+    <div class="arrival-row">
+      <div class="ar-date">Dec 1 · Mon</div>
+      <div class="ar-type ar-arrives">Arrives</div>
+      <div class="ar-who">Alvaro</div>
+    </div>
+    <div class="arrival-row">
+      <div class="ar-date">Dec 14 · Mon</div>
+      <div class="ar-type ar-arrives">Arrives</div>
+      <div class="ar-who">Deyna · David · Gabriel · Ellen · Gabrielito · Lucas</div>
+    </div>
+    <div class="arrival-row">
+      <div class="ar-date">Dec 17 · Thu</div>
+      <div class="ar-type ar-arrives">Arrives</div>
+      <div class="ar-who">Daniel · Claire · Tom · Renee</div>
+    </div>
+    <div class="arrival-row">
+      <div class="ar-date">Dec 24 · Thu</div>
+      <div class="ar-type ar-departs">Departs</div>
+      <div class="ar-who">Tom &amp; Renee</div>
+    </div>
+    <div class="arrival-row">
+      <div class="ar-date">Dec 28 · Mon</div>
+      <div class="ar-type ar-departs">Departs</div>
+      <div class="ar-who">Daniel &amp; Claire</div>
+    </div>
+    <div class="arrival-row">
+      <div class="ar-date">Dec 29 · Tue</div>
+      <div class="ar-type ar-departs">Departs</div>
+      <div class="ar-who">Alvaro · Deyna · David · Gabriel · Ellen · Gabrielito · Lucas</div>
+    </div>
+  </div>
+
+  <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:400;margin-bottom:22px;">Full Itinerary</h2>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--activity)"></div> Tour / Activity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--dinner)"></div> Dinner</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--commute)"></div> Commute</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--shopping)"></div> Shopping</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--free)"></div> Free Time</div>
+  </div>
+  <div id="overview-events"></div>
+</div>
+
+<!-- TRAVELER PANELS -->
+<div class="panel" id="panel-alvaro">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:var(--rust)">A</div>
+    <div class="traveler-info">
+      <h2>Alvaro</h2>
+      <div class="traveler-dates">Arrives Dec 1 · Departs Dec 29</div>
+      <div class="traveler-count" id="count-alvaro"></div>
+    </div>
+  </div>
+  <div id="events-alvaro"></div>
+</div>
+
+<div class="panel" id="panel-deyna">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#7B5E8A">D</div>
+    <div class="traveler-info">
+      <h2>Deyna</h2>
+      <div class="traveler-dates">Arrives Dec 14 · Departs Dec 29</div>
+      <div class="traveler-count" id="count-deyna"></div>
+    </div>
+  </div>
+  <div id="events-deyna"></div>
+</div>
+
+<div class="panel" id="panel-gabriel">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#2D6A4F">G</div>
+    <div class="traveler-info">
+      <h2>Gabriel</h2>
+      <div class="traveler-dates">Arrives Dec 14 · Departs Dec 29</div>
+      <div class="traveler-count" id="count-gabriel"></div>
+    </div>
+  </div>
+  <div id="events-gabriel"></div>
+</div>
+
+<div class="panel" id="panel-ellen">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:var(--gold)">E</div>
+    <div class="traveler-info">
+      <h2>Ellen</h2>
+      <div class="traveler-dates">Arrives Dec 14 · Departs Dec 29</div>
+      <div class="traveler-count" id="count-ellen"></div>
+    </div>
+  </div>
+  <div id="events-ellen"></div>
+</div>
+
+<div class="panel" id="panel-gabrielito">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#4A7FB5">G</div>
+    <div class="traveler-info">
+      <h2>Gabrielito</h2>
+      <div class="traveler-dates">Arrives Dec 14 · Departs Dec 29 · Age 3</div>
+      <div class="traveler-count" id="count-gabrielito"></div>
+    </div>
+  </div>
+  <div id="events-gabrielito"></div>
+</div>
+
+<div class="panel" id="panel-lucas">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#6BAA75">L</div>
+    <div class="traveler-info">
+      <h2>Lucas</h2>
+      <div class="traveler-dates">Arrives Dec 14 · Departs Dec 29 · Age 1</div>
+      <div class="traveler-count" id="count-lucas"></div>
+    </div>
+  </div>
+  <div id="events-lucas"></div>
+</div>
+
+<div class="panel" id="panel-daniel">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#5B4A8A">D</div>
+    <div class="traveler-info">
+      <h2>Daniel</h2>
+      <div class="traveler-dates">Arrives Dec 17 · Departs Dec 28</div>
+      <div class="traveler-count" id="count-daniel"></div>
+    </div>
+  </div>
+  <div id="events-daniel"></div>
+</div>
+
+<div class="panel" id="panel-claire">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#9B6B9B">C</div>
+    <div class="traveler-info">
+      <h2>Claire</h2>
+      <div class="traveler-dates">Arrives Dec 17 · Departs Dec 28</div>
+      <div class="traveler-count" id="count-claire"></div>
+    </div>
+  </div>
+  <div id="events-claire"></div>
+</div>
+
+<div class="panel" id="panel-david">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#8B6914">D</div>
+    <div class="traveler-info">
+      <h2>David</h2>
+      <div class="traveler-dates">Arrives Dec 14 · Departs Dec 29</div>
+      <div class="traveler-count" id="count-david"></div>
+    </div>
+  </div>
+  <div id="events-david"></div>
+</div>
+
+<div class="panel" id="panel-tom">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#3A5F7A">T</div>
+    <div class="traveler-info">
+      <h2>Tom</h2>
+      <div class="traveler-dates">Arrives Dec 17 · Departs Dec 24</div>
+      <div class="traveler-count" id="count-tom"></div>
+    </div>
+  </div>
+  <div id="events-tom"></div>
+</div>
+
+<div class="panel" id="panel-renee">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#7A3A5F">R</div>
+    <div class="traveler-info">
+      <h2>Renee</h2>
+      <div class="traveler-dates">Arrives Dec 17 · Departs Dec 24</div>
+      <div class="traveler-count" id="count-renee"></div>
+    </div>
+  </div>
+  <div id="events-renee"></div>
+</div>
+
+
+<div class="panel" id="panel-lucho">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#5A7A3A">L</div>
+    <div class="traveler-info">
+      <h2>Lucho</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-lucho"></div>
+    </div>
+  </div>
+  <div id="events-lucho"></div>
+</div>
+
+<div class="panel" id="panel-mari">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#7A3A6A">M</div>
+    <div class="traveler-info">
+      <h2>Mari</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-mari"></div>
+    </div>
+  </div>
+  <div id="events-mari"></div>
+</div>
+
+<div class="panel" id="panel-blanca">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#3A6A7A">B</div>
+    <div class="traveler-info">
+      <h2>Blanca</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-blanca"></div>
+    </div>
+  </div>
+  <div id="events-blanca"></div>
+</div>
+
+<div class="panel" id="panel-anamaria">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#7A5A3A">A</div>
+    <div class="traveler-info">
+      <h2>Ana María</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-anamaria"></div>
+    </div>
+  </div>
+  <div id="events-anamaria"></div>
+</div>
+
+<div class="panel" id="panel-rosi">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#8A3A5A">R</div>
+    <div class="traveler-info">
+      <h2>Rosi</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-rosi"></div>
+    </div>
+  </div>
+  <div id="events-rosi"></div>
+</div>
+
+<div class="panel" id="panel-gustavo">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#3A5A3A">G</div>
+    <div class="traveler-info">
+      <h2>Gustavo</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-gustavo"></div>
+    </div>
+  </div>
+  <div id="events-gustavo"></div>
+</div>
+
+<div class="panel" id="panel-duili">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#5A3A8A">D</div>
+    <div class="traveler-info">
+      <h2>Duili</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-duili"></div>
+    </div>
+  </div>
+  <div id="events-duili"></div>
+</div>
+
+<div class="panel" id="panel-guti">
+  <div class="traveler-hero">
+    <div class="traveler-avatar" style="background:#6A5A3A">G</div>
+    <div class="traveler-info">
+      <h2>Guti</h2>
+      <div class="traveler-dates">Lima local</div>
+      <div class="traveler-count" id="count-guti"></div>
+    </div>
+  </div>
+  <div id="events-guti"></div>
+</div>
+
+
+</div><!-- /content -->
+
+<script>
+// ── EVENTS DATA (from Table 1) ──
+// Family travelers: Alvaro, Deyna, David, Gabriel, Ellen, Gabrielito, Lucas, Daniel, Claire, Tom, Renee
+// Local Lima guests: Lucho, Mari, Blanca, Ana María, Rosi, Gustavo, Duili, Guti
+const EVENTS = [
+  {
+    code:'A001', date:'2026-12-14', dow:'Mon', time:'9:40 PM', type:'Commute',
+    subject:'Airport ride',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas'],
+    local:[],
+    desc:'Alvaro picks up Deyna, David, Gabriel, Ellen, Gabrielito, and Lucas from the airport'
+  },
+  {
+    code:'A011', date:'2026-12-15', dow:'Tue', time:'8:30 AM', type:'Tour',
+    subject:'Club &amp; Family time (Regatas Chorrillos)',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas'],
+    local:[],
+    desc:'Nice lunch, playground, pool, beach, and sunset from a boat'
+  },
+  {
+    code:'A021', date:'2026-12-16', dow:'Wed', time:'8:30 AM', type:'Tour',
+    subject:'Club &amp; Family time (Regatas San Antonio)',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas'],
+    local:[],
+    desc:'Regatas de San Antonio, Asia, Rezo and Punta Hermosa'
+  },
+  {
+    code:'A031', date:'2026-12-17', dow:'Thu', time:'8:30 AM', type:'Tour',
+    subject:'Club &amp; Family time (Regatas La Cantuta)',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas'],
+    local:[],
+    desc:'Regatas de La Cantuta, Chosica, El Bosque, and bungalows'
+  },
+  {
+    code:'A041', date:'2026-12-17', dow:'Thu', time:'10:00 PM', type:'Commute',
+    subject:'Airport ride',
+    family:['Alvaro','Daniel','Claire'],
+    local:[],
+    desc:'Alvaro picks up Daniel and Claire from the airport'
+  },
+  {
+    code:'A051', date:'2026-12-18', dow:'Fri', time:'8:30 AM', type:'Tour',
+    subject:'Walking Tour #1: Tías',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire','Tom','Renee'],
+    local:['Blanca','Ana María'],
+    desc:'Manuel Fuentes, Parque Murillo, Olivar, Visit to Blanca & Ana María'
+  },
+  {
+    code:'A061', date:'2026-12-18', dow:'Fri', time:'7:00 PM', type:'Dinner',
+    subject:'DanSa',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire','Tom','Renee'],
+    local:['Lucho'],
+    desc:'Introducción al Perú: costa, sierra, selva, música, cultura y gastronomía'
+  },
+  {
+    code:'A071', date:'2026-12-19', dow:'Sat', time:'8:30 AM', type:'Tour',
+    subject:'Walking Tour #2: Centro Histórico',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire','Tom','Renee'],
+    local:[],
+    desc:'Visit churches and traditional landmarks of downtown Lima'
+  },
+  {
+    code:'A081', date:'2026-12-19', dow:'Sat', time:'7:00 PM', type:'Dinner',
+    subject:'La Linterna & Dossis',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire','Tom','Renee'],
+    local:[],
+    desc:'Pizza and Bar'
+  },
+  {
+    code:'A091', date:'2026-12-20', dow:'Sun', time:'8:00 AM', type:'Tour',
+    subject:'Walking Tour #3: Boardwalk',
+    family:['Alvaro','David','Gabriel','Ellen','Gabrielito','Claire','Tom','Renee'],
+    local:[],
+    desc:'Boardwalk from San Isidro to Barranco (long walk), and brief peek of Barranco'
+  },
+  {
+    code:'A101', date:'2026-12-20', dow:'Sun', time:'5:00 PM', type:'Dinner',
+    subject:'La Bonbonniere + Mirabus',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire','Tom','Renee'],
+    local:[],
+    desc:'Creación contemporánea (ej: risotto a la huancaína con lomo saltado). Vista al mar'
+  },
+  {
+    code:'A111', date:'2026-12-21', dow:'Mon', time:'8:30 AM', type:'Tour',
+    subject:'Walking Tour #4: Dasso',
+    family:['Tom','Renee'],
+    local:[],
+    desc:'Pezet, Roosevelt Park, Dasso, Victor Maurtua, Jacinto Lara, and Pasta restaurant'
+  },
+  {
+    code:'A121', date:'2026-12-21', dow:'Mon', time:'7:30 PM', type:'Dinner',
+    subject:'Zsa Zsa del Regatas',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire','Tom','Renee'],
+    local:[],
+    desc:'Cocina contemporánea internacional con influencias peruanas y asiáticas. Vista al mar'
+  },
+  {
+    code:'A131', date:'2026-12-22', dow:'Tue', time:'8:00 AM', type:'Tour',
+    subject:'Club Villa Chorrillos',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire','Tom','Renee'],
+    local:['Rosi','Gustavo'],
+    desc:'Golf, pool, ocean, and family day'
+  },
+  {
+    code:'A141', date:'2026-12-22', dow:'Tue', time:'7:00 PM', type:'Dinner',
+    subject:'Osaka',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire','Tom','Renee'],
+    local:[],
+    desc:'Nikkei food (modern peruvian-japonese fusion)'
+  },
+  {
+    code:'A151', date:'2026-12-23', dow:'Wed', time:'10:00 AM', type:'Shopping',
+    subject:'Walking Tour #5: Miraflores',
+    family:['Tom','Renee'],
+    local:[],
+    desc:'Larcomar, Kennedy Park and Mercado Artesanal'
+  },
+  {
+    code:'A161', date:'2026-12-23', dow:'Wed', time:'7:00 PM', type:'Dinner',
+    subject:'Astrid & Gaston',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire','Tom','Renee'],
+    local:[],
+    desc:'Pioneer restaurant from Gastón Acurio'
+  },
+  {
+    code:'A171', date:'2026-12-24', dow:'Thu', time:'10:00 AM', type:'Free',
+    subject:'Prepare for Christmas Eve',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire'],
+    local:[],
+    desc:'Wrap presents, rest, and mass'
+  },
+  {
+    code:'A181', date:'2026-12-24', dow:'Thu', time:'11:59 AM', type:'Commute',
+    subject:'Airport ride',
+    family:['Alvaro','Deyna','Daniel','Claire','Tom','Renee'],
+    local:[],
+    desc:'Alvaro takes Tom and Renee to the airport'
+  },
+  {
+    code:'A191', date:'2026-12-24', dow:'Thu', time:'9:00 PM', type:'Dinner',
+    subject:'Christmas Eve',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire'],
+    local:['Blanca','Ana María','Rosi','Gustavo','Duili','Guti'],
+    desc:'Family reunion at Duili\'s house'
+  },
+  {
+    code:'A201', date:'2026-12-25', dow:'Fri', time:'10:00 AM', type:'Tour',
+    subject:'Trip to Paracas',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire'],
+    local:[],
+    desc:'Drive to Paracas, with stop in Chincha. Sandboarding at Huacachina Oasis'
+  },
+  {
+    code:'A211', date:'2026-12-25', dow:'Fri', time:'7:30 PM', type:'Dinner',
+    subject:'Paracas',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire'],
+    local:[],
+    desc:'Mariscos at Paracas Hotel'
+  },
+  {
+    code:'A221', date:'2026-12-26', dow:'Sat', time:'8:00 AM', type:'Tour',
+    subject:'Trip to Paracas (cont.)',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas','Daniel','Claire'],
+    local:[],
+    desc:'Wildlife at Ballestas Islands, Regatas San Antonio, Asia, Punta Rocas, Punta Hermosa'
+  },
+  {
+    code:'A231', date:'2026-12-26', dow:'Sat', time:'7:30 PM', type:'Dinner',
+    subject:'La Huaca',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire'],
+    local:[],
+    desc:'Nice way to end up trip to Paracas'
+  },
+  {
+    code:'A241', date:'2026-12-27', dow:'Sun', time:'10:00 AM', type:'Tour',
+    subject:'Museums',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire'],
+    local:[],
+    desc:'Museo de Oro, Museo de la Nación, Museo Larco'
+  },
+  {
+    code:'A251', date:'2026-12-27', dow:'Sun', time:'7:30 PM', type:'Dinner',
+    subject:'Cafe Museo Larco',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Daniel','Claire'],
+    local:[],
+    desc:'Tradicional elegante'
+  },
+  {
+    code:'A261', date:'2026-12-28', dow:'Mon', time:'8:15 AM', type:'Commute',
+    subject:'Airport ride',
+    family:['Alvaro','Daniel','Claire'],
+    local:[],
+    desc:'Alvaro takes Daniel & Claire to the airport'
+  },
+  {
+    code:'A271', date:'2026-12-28', dow:'Mon', time:'8:15 AM', type:'Free',
+    subject:'Family time',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas'],
+    local:[],
+    desc:'Possibly mass with Gabito &amp; Ellen, and nice lunch with them'
+  },
+  {
+    code:'A281', date:'2026-12-28', dow:'Mon', time:'7:30 PM', type:'Dinner',
+    subject:'Anniversary treat (Gabriel & Ellen)',
+    family:['Gabriel','Ellen'],
+    local:[],
+    desc:'Gabriel and Ellen have a treat while Abitos enjoy Gabrielito &amp; Lucas'
+  },
+  {
+    code:'A291', date:'2026-12-29', dow:'Tue', time:'8:00 AM', type:'Commute',
+    subject:'Airport ride',
+    family:['Alvaro','Deyna','David','Gabriel','Ellen','Gabrielito','Lucas'],
+    local:[],
+    desc:'Alvaro takes Deyna, David, Gabriel, Ellen, Gabrielito, and Lucas to the airport'
+  },
+];
+
+// Family travelers config
+const FAMILY_TRAVELERS = [
+  { key:'alvaro',     name:'Alvaro',     color:['#8B3A2A'], arrive:'Dec 1',  depart:'Dec 29' },
+  { key:'deyna',      name:'Deyna',      color:['#7B5E8A'], arrive:'Dec 14', depart:'Dec 29' },
+  { key:'gabriel',    name:'Gabriel',    color:['#2D6A4F'], arrive:'Dec 14', depart:'Dec 29' },
+  { key:'ellen',      name:'Ellen',      color:['#C9954A'], arrive:'Dec 14', depart:'Dec 29' },
+  { key:'gabrielito', name:'Gabrielito', color:['#4A7FB5'], arrive:'Dec 14', depart:'Dec 29' },
+  { key:'lucas',      name:'Lucas',      color:['#6BAA75'], arrive:'Dec 14', depart:'Dec 29' },
+  { key:'daniel',     name:'Daniel',     color:['#5B4A8A'], arrive:'Dec 17', depart:'Dec 28' },
+  { key:'claire',     name:'Claire',     color:['#9B6B9B'], arrive:'Dec 17', depart:'Dec 28' },
+  { key:'david',      name:'David',      color:['#8B6914'], arrive:'Dec 14', depart:'Dec 29' },
+  { key:'tom',        name:'Tom',        color:['#3A5F7A'], arrive:'Dec 17', depart:'Dec 24' },
+  { key:'renee',      name:'Renee',      color:['#7A3A5F'], arrive:'Dec 17', depart:'Dec 24' },
+];
+
+const LOCAL_TRAVELERS = [
+  { key:'lucho',    name:'Lucho',     color:'#5A7A3A' },
+  { key:'mari',     name:'Mari',      color:'#7A3A6A' },
+  { key:'blanca',   name:'Blanca',    color:'#3A6A7A' },
+  { key:'anamaria', name:'Ana María', color:'#7A5A3A' },
+  { key:'rosi',     name:'Rosi',      color:'#8A3A5A' },
+  { key:'gustavo',  name:'Gustavo',   color:'#3A5A3A' },
+  { key:'duili',    name:'Duili',     color:'#5A3A8A' },
+  { key:'guti',     name:'Guti',      color:'#6A5A3A' },
+];
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+}
+
+function dotClass(type) {
+  const map = { Tour:'dot-tour', Dinner:'dot-dinner', Commute:'dot-commute', Shopping:'dot-shopping', Free:'dot-free' };
+  return map[type] || 'dot-free';
+}
+function tagClass(type) {
+  const map = { Tour:'tag-Tour', Dinner:'tag-Dinner', Commute:'tag-Commute', Shopping:'tag-Shopping', Free:'tag-Free' };
+  return map[type] || 'tag-Free';
+}
+
+function timeToMinutes(timeStr) {
+  if (!timeStr) return 0;
+  const [time, ampm] = timeStr.split(' ');
+  let [h, m] = time.split(':').map(Number);
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return h * 60 + m;
+}
+
+function groupByDate(events) {
+  const groups = {};
+  events.forEach(e => {
+    if (!groups[e.date]) groups[e.date] = { dow: e.dow, events: [] };
+    groups[e.date].events.push(e);
+  });
+  // Sort dates ascending, then sort events within each date by time ascending
+  const sorted = Object.entries(groups).sort((a,b) => a[0] < b[0] ? -1 : 1);
+  sorted.forEach(([, g]) => {
+    g.events.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+  });
+  return sorted;
+}
+
+function renderEventList(events, containerId, showAttendees) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!events.length) { el.innerHTML = '<div class="no-events">No events scheduled.</div>'; return; }
+  const groups = groupByDate(events);
+  let html = '';
+  groups.forEach(([date, g]) => {
+    html += `<div class="day-block">
+      <div class="day-header">
+        <span class="day-date">${formatDate(date)}</span>
+        <span class="day-dow">${g.dow}</span>
+      </div>`;
+    g.events.forEach(e => {
+      const allLocal = e.local || [];
+      html += `<div class="event-row">
+        <div class="event-dot ${dotClass(e.type)}"></div>
+        <div class="event-body">
+          <div><span class="event-code">${e.code}</span> <span class="type-tag ${tagClass(e.type)}">${e.type}</span></div>
+          <div class="event-title">${e.subject} <span class="event-time">(ref: ${e.time})</span></div>
+          ${e.desc ? `<div class="event-desc">${e.desc}</div>` : ''}
+          ${showAttendees ? `<div class="attendee-chips">
+            ${e.family.map(n=>`<span class="chip">${n}</span>`).join('')}
+            ${allLocal.map(n=>`<span class="chip chip-local">${n}</span>`).join('')}
+          </div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// Render overview
+renderEventList(EVENTS, 'overview-events', true);
+
+// Render each family traveler
+FAMILY_TRAVELERS.forEach(t => {
+  const myEvents = EVENTS.filter(e => e.family.includes(t.name));
+  renderEventList(myEvents, `events-${t.key}`, false);
+  const countEl = document.getElementById(`count-${t.key}`);
+  if (countEl) {
+    const tours   = myEvents.filter(e => e.type === 'Tour').length;
+    const dinners = myEvents.filter(e => e.type === 'Dinner').length;
+    const other   = myEvents.filter(e => e.type !== 'Tour' && e.type !== 'Dinner').length;
+    countEl.textContent = `${myEvents.length} events · ${tours} tours · ${dinners} dinners · ${other} other`;
+  }
+});
+
+// Render each local traveler
+LOCAL_TRAVELERS.forEach(t => {
+  const myEvents = EVENTS.filter(e => e.local.includes(t.name));
+  renderEventList(myEvents, `events-${t.key}`, false);
+  const countEl = document.getElementById(`count-${t.key}`);
+  if (countEl) {
+    const tours   = myEvents.filter(e => e.type === 'Tour').length;
+    const dinners = myEvents.filter(e => e.type === 'Dinner').length;
+    const other   = myEvents.filter(e => e.type !== 'Tour' && e.type !== 'Dinner').length;
+    countEl.textContent = `${myEvents.length} events · ${tours} tours · ${dinners} dinners · ${other} other`;
+  }
+});
+
+// Tab switching
+function showPanel(name, tabEl) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  tabEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Scroll buttons
+function scrollTabs(dir) {
+  document.getElementById('tabs-wrapper').scrollBy({ left: dir * 120, behavior: 'smooth' });
+}
+function updateScrollBtns() {
+  const w = document.getElementById('tabs-wrapper');
+  const L = document.getElementById('scroll-left');
+  const R = document.getElementById('scroll-right');
+  if (!w || !L || !R) return;
+  L.classList.toggle('hidden', w.scrollLeft <= 2);
+  R.classList.toggle('hidden', w.scrollLeft + w.clientWidth >= w.scrollWidth - 2);
+}
+const tw = document.getElementById('tabs-wrapper');
+if (tw) { tw.addEventListener('scroll', updateScrollBtns); updateScrollBtns(); }
+</script>
+</body>
+</html>
